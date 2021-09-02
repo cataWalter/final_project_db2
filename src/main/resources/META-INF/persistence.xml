@@ -5,10 +5,14 @@
              version="2.2">
     <persistence-unit name="default">
 
-        <class>entity.Department</class>
+        <class>entity.Answer</class>
+        <class>entity.Explicitword</class>
+        <class>entity.Login</class>
+        <class>entity.Product</class>
+        <class>entity.Question</class>
         <class>entity.User</class>
         <properties>
-            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/mydb"/>
+            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/project_db2"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver"/>
             <property name="hibernate.connection.username" value="root"/>
             <property name="hibernate.connection.password" value="1111"/>

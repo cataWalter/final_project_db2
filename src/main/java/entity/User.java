@@ -1,49 +1,90 @@
 package entity;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
-@NamedQuery(
-        name = "UserByDepartment",
-        query = "select u from User u where u.departmentByDepartmentId.name = ?1"
-)
+@NamedQuery(name = "User.selectAll", query = "SELECT p FROM User p")
+@NamedQuery(name = "User.selectLeaderboard", query = "SELECT p FROM User p WHERE not (p.username = 'admin') AND " +
+        "p.blocked = 0 ORDER BY " +
+        "p.points DESC")
+@NamedQuery(name = "User.byId", query = "SELECT p FROM User p WHERE p.userId = ?1")
+@NamedQuery(name = "User.byUsername", query = "SELECT p FROM User p WHERE p.username = ?1")
+@NamedQuery(name = "User.byUsernamePassword", query = "SELECT p FROM User p WHERE p.username = ?1 AND p.password = ?2")
+@NamedQuery(name = "User.byAnswer", query = "SELECT u FROM User u WHERE EXISTS(SELECT a FROM Answer a WHERE a" +
+        ".userByUserId=u AND a.productByProductId = ?1 AND a.successfullySent = ?2)")
+
+
 public class User {
-    private int id;
-    private String firstname;
-    private String lastname;
-    private Department departmentByDepartmentId;
+    private int userId;
+    private String username;
+    private String password;
+    private String email;
+    private Integer points;
+    private int blocked;
+    private Collection<Answer> answersByUserId;
+    private Collection<Login> loginsByUserId;
 
 
 
     @Id
-    @Basic
-    @Column(name = "id", nullable = false)
-    public int getId() {
-        return id;
+    @Column(name = "userId", nullable = false)
+    public int getUserId() {
+        return userId;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Basic
-    @Column(name = "firstname", nullable = true, length = 255)
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     @Basic
-    @Column(name = "lastname", nullable = false, length = 32)
-    public String getLastname() {
-        return lastname;
+    @Column(name = "username", nullable = true, length = 255)
+    public String getUsername() {
+        return username;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Basic
+    @Column(name = "password", nullable = true, length = 255)
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Basic
+    @Column(name = "email", nullable = true, length = 255)
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Basic
+    @Column(name = "points", nullable = true)
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+
+    @Basic
+    @Column(name = "blocked", nullable = true)
+    public int getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(int blocked) {
+        this.blocked = blocked;
     }
 
     @Override
@@ -53,28 +94,40 @@ public class User {
 
         User user = (User) o;
 
-        if (id != user.id) return false;
-        if (firstname != null ? !firstname.equals(user.firstname) : user.firstname != null) return false;
-        if (lastname != null ? !lastname.equals(user.lastname) : user.lastname != null) return false;
+        if (userId != user.userId) return false;
+        if (blocked != user.blocked) return false;
+        if (username != null ? !username.equals(user.username) : user.username != null) return false;
+        if (password != null ? !password.equals(user.password) : user.password != null) return false;
+        if (email != null ? !email.equals(user.email) : user.email != null) return false;
+        if (points != null ? !points.equals(user.points) : user.points != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = id;
-        result = 31 * result + (firstname != null ? firstname.hashCode() : 0);
-        result = 31 * result + (lastname != null ? lastname.hashCode() : 0);
+        int result = userId;
+        result = 31 * result + (username != null ? username.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + (points != null ? points.hashCode() : 0);
+        result = 31 * result + blocked;
         return result;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "department_id", referencedColumnName = "id")
-    public Department getDepartmentByDepartmentId() {
-        return departmentByDepartmentId;
+    @OneToMany(mappedBy = "userByUserId", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    public Collection<Answer> getAnswersByUserId() {
+        return answersByUserId;
+    }
+    public void setAnswersByUserId(Collection<Answer> answersByUserId) {
+        this.answersByUserId = answersByUserId;
+    }
+    @OneToMany(mappedBy = "userByUserId", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    public Collection<Login> getLoginsByUserId() {
+        return loginsByUserId;
+    }
+    public void setLoginsByUserId(Collection<Login> loginsByUserId) {
+        this.loginsByUserId = loginsByUserId;
     }
 
-    public void setDepartmentByDepartmentId(Department departmentByDepartmentId) {
-        this.departmentByDepartmentId = departmentByDepartmentId;
-    }
 }
